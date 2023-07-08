@@ -1,0 +1,74 @@
+project_name: gh-backup
+
+env:
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: macos
+    goos:
+      - darwin
+    main: ./cmd/gh-backup/main.go
+    binary: gh-backup
+    ldflags:
+      - -s -w -X github.com/ChrisWiegman/gh-backup/internal/backup.Version={{.Version}} -X github.com/ChrisWiegman/gh-backup/internal/backup.Timestamp={{.Date}}
+  - id: linux
+    goos:
+      - linux
+    goarch:
+      - amd64
+    main: ./cmd/gh-backup/main.go
+    binary: gh-backup
+    ldflags:
+      - -s -w -X github.com/ChrisWiegman/gh-backup/internal/backup.Version={{.Version}} -X github.com/ChrisWiegman/gh-backup/internal/backup.Timestamp={{.Date}}
+
+archives:
+  - id: macos
+    builds:
+      - macos
+      - linux
+    format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      amd64: x86_64
+      darwin: macos
+    files:
+      - LICENSE.txt
+      - CHANGELOG.md
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-devel"
+
+changelog:
+  skip: false
+
+nfpms:
+  - vendor: Chris Wiegman
+    builds:
+      - linux
+    license: MIT
+    homepage: https://github.com/ChrisWiegman/gh-backup
+    maintainer: Chris Wiegman <contact@chriswiegman.com>
+    description: A simple CLI utility, written in GoLang, to backup all of your public GitHub repos.
+    replacements:
+      amd64: x86_64
+    formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux
+
+brews:
+  - tap:
+      owner: ChrisWiegman
+      name: homebrew-gh-backup
+      branch: main
+    name: gh-backup
+    license: MIT
+    test: |
+      system "#{bin}/gh-backup --version"
+    homepage: https://github.com/ChrisWiegman/gh-backup
+    description: A simple CLI utility, written in GoLang, to backup all of your public GitHub repos.
