@@ -15,7 +15,7 @@ func Execute() {
 	cmd := &cobra.Command{
 		Use:   "gh-backup <GitHub Username>",
 		Short: "GH Backup is a simple script to backup all public GitHub repos for a specified account.",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run:   backup.ExecuteBackup,
 	}
 

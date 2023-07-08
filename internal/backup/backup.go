@@ -1,9 +1,10 @@
 package backup
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -31,6 +32,11 @@ func ExecuteBackup(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
+	if len(args) == 0 {
+		fmt.Printf("invalid username. app must be called with the GitHub username to backup")
+		os.Exit(1)
+	}
+
 	repos, err := getRepos(args[0])
 	if err != nil {
 		fmt.Printf("could not retrieve list of GitHub repos for given user: %s", err)
@@ -45,14 +51,13 @@ func ExecuteBackup(cmd *cobra.Command, args []string) {
 }
 
 func backupRepos(repos []githubRepo) error {
-
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
 	for _, repo := range repos {
-		cmd := exec.Command("git", "clone", "--mirror", repo.URL, repo.Name)
+		cmd := exec.Command("git", "clone", "--mirror", repo.URL, repo.Name) //nolint:gosec
 
 		_, err := os.Stat(repo.Name)
 		if !os.IsNotExist(err) {
@@ -72,13 +77,18 @@ func getRepos(username string) ([]githubRepo, error) {
 	var githubRepos []githubRepo
 
 	requestURL := fmt.Sprintf("https://api.github.com/users/%s/repos", username)
-	req, err := http.Get(requestURL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, requestURL, http.NoBody)
 	if err != nil {
 		return githubRepos, nil
 	}
-	defer req.Body.Close()
 
-	body, err := ioutil.ReadAll(req.Body)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return githubRepos, nil
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return githubRepos, nil
 	}
