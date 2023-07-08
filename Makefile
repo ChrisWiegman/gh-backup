@@ -59,10 +59,6 @@ lint:
 			-v \
 			./...
 
-.PHONY: update
-update:
-	go get -u ./...
-
 .PHONY: snapshot
 snapshot:
 	docker run --rm \
@@ -83,3 +79,7 @@ test:
 		-timeout 30s\
 		-cover \
 		./...
+
+.PHONY: update
+update:
+	go get -u ./...
