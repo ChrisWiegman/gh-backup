@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var flagVersion bool
+
 func Execute() {
 	// Setup the cobra command
 	cmd := &cobra.Command{
@@ -16,6 +18,8 @@ func Execute() {
 		Args:  cobra.ExactArgs(1),
 		Run:   backup.ExecuteBackup,
 	}
+
+	cmd.PersistentFlags().BoolVarP(&flagVersion, "version", "v", false, "Display version information for the gh-backup client.")
 
 	// Execute anything we need to
 	if err := cmd.Execute(); err != nil {

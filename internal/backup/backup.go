@@ -17,7 +17,20 @@ type githubRepo struct {
 	Name string `json:"name"`
 }
 
+var Version, Timestamp string
+
+type VersionInfo struct {
+	Version, Timestamp string
+}
+
 func ExecuteBackup(cmd *cobra.Command, args []string) {
+	if cmd.Flags().Lookup("version").Value.String() == "true" {
+		fmt.Printf("Version: %s\n", Version)
+		fmt.Printf("Build Time: %s\n", Timestamp)
+
+		os.Exit(0)
+	}
+
 	repos, err := getRepos(args[0])
 	if err != nil {
 		fmt.Printf("could not retrieve list of GitHub repos for given user: %s", err)
