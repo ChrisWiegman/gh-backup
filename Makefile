@@ -48,17 +48,11 @@ install:
 
 .PHONY: lint
 lint:
-	docker \
-		run \
-		-t \
-		--rm \
-		-v $(PWD):/app \
-		-w /app \
-		golangci/golangci-lint:latest \
-		golangci-lint \
-			run \
-			-v \
-			./...
+	@if [ ! -f $GOPATH/bin/gilangci-lint  ]; then \
+		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest;\
+	fi
+	@golangci-lint \
+			run
 
 .PHONY: snapshot
 snapshot:
