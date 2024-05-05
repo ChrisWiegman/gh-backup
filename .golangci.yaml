@@ -22,7 +22,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/ChrisWiegman/kana-cli
+    local-prefixes: github.com/ChrisWiegman/gh-backup
   mnd:
     # don't include the "operation" and "assign"
     checks:
